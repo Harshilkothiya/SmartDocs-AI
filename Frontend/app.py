@@ -1,4 +1,5 @@
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.memory import ConversationBufferMemory
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_core.tools import tool
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -19,6 +20,8 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 vectorstore = None
 agent_executor = None
@@ -103,7 +106,12 @@ def upload():
         prompt = hub.pull("hwchase17/react")
 
         agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
-        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools,
+            verbose=True, 
+            handle_parsing_errors=True,
+            memory=memory)
 
         print("upload complate")
         return jsonify({"message": "File uploaded and processed successfully!"})
