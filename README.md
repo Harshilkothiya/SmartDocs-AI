@@ -1,46 +1,61 @@
-📄 SmartDoc-AI Agent
+# 📌 AI-Powered Document Chatbot
 
-SmartDoc-AI is an AI-powered document assistant that allows users to upload and query documents (PDFs or text files) in natural language. It extracts, embeds, and retrieves relevant sections of the document to provide precise answers.
+An **AI-powered chatbot** that allows users to **upload documents (PDF, TXT, etc.)** and interact with them through natural language queries. The system uses **embeddings + LLMs** to provide accurate and context-aware answers.
 
-🌟 Overview
+---
 
-Users can upload documents through a web interface.
+## 🛠️ Tech Stack
 
-The system processes the file and generates embeddings for semantic search.
+### **Frontend**
+- HTML, CSS, JavaScript  
+- Classic chatbot UI  
+- File upload functionality  
 
-An AI agent powered by LangChain answers user queries.
+### **Backend**
+- **Flask** 
+- REST API for AI responses  
+- Handles document upload and embedding generation  
 
-Supports context-aware responses from uploaded documents.
+### **AI / ML**
+- Embedding Models:  
+  - HuggingFaceEmbeddings - 'sentence-transformers/all-MiniLM-L6-v2'
+- LLM: Gemini model 
 
-🚀 Features
+### **Database**
+- Vector Database (ChromaDB) for storing embeddings  
 
-📤 Upload PDF or text files.
+---
 
-🤖 Natural language question answering.
+## 📖 Workflow
 
-🔎 Document search & retrieval using embeddings.
+1. **User uploads a document**  
+2. **System extracts text**  
+3. **Text is split into chunks & embedded**  
+4. **Embeddings stored in vector DB**  
+5. **User asks a query**  
+6. **Relevant chunks retrieved using similarity search**  
+7. **LLM generates response using context**  
+8. **Response displayed in chat UI**  
 
-🛠️ AI Agent with LangChain tools.
+---
 
-💡 Clean and simple web-based interface.
+## 📊 Example Use Cases
+- 📘 Summarize research papers  
+- 🏢 Analyze company reports  
+- ⚖️ Review legal documents  
+- 🏫 Study assistant for students  
+- 💼 HR policy & employee handbook Q&A  
 
-🛠️ Tech Stack
+---
 
-Frontend: HTML, CSS (chat interface + file upload).
-
-Backend: Flask (Python).
-
-Vector Database: ChromaDB.
-
-Embeddings: HuggingFace / Sentence Transformers (free alternative to Gemini).
-
-LLM Agent: LangChain + chosen LLM (OpenAI / Google Gemini / Ollama).
-
-📸 Screenshots
-<img width="1920" height="921" alt="image" src="https://github.com/user-attachments/assets/929465ea-69dc-45c2-a52b-2081118a4f18" />
+## 📸 Screenshots
+<img width="1920" height="921" alt="image" src="https://github.com/user-attachments/assets/7760013f-45ba-4706-b438-cc845ea4dbbd" />
 
 
+---
 
-📜 License
+## 👨‍💻 Authors
+- **Harshil Kothiya**  
 
-MIT License © 2025
+
+---
