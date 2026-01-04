@@ -5,37 +5,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartDoc-AI</title>
-  <!-- Tailwind CSS for styling -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
-    /* Custom scrollbar for a cleaner look */
-    #chat-container::-webkit-scrollbar {
-      width: 6px;
-    }
+    /* Custom scrollbar */
+    #chat-container::-webkit-scrollbar { width: 6px; }
+    #chat-container::-webkit-scrollbar-track { background: #2d3748; }
+    #chat-container::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 3px; }
+    #chat-container::-webkit-scrollbar-thumb:hover { background: #718096; }
 
-    #chat-container::-webkit-scrollbar-track {
-      background: #2d3748;
-      /* bg-gray-800 */
+    /* --- BEAUTIFUL CHAT STYLES --- */
+    /* This makes the lists, bold text, and headers look professional */
+    .markdown-content ul {
+        list-style-type: disc;
+        margin-left: 20px;
+        margin-bottom: 8px;
     }
-
-    #chat-container::-webkit-scrollbar-thumb {
-      background: #4a5568;
-      /* bg-gray-700 */
-      border-radius: 3px;
+    .markdown-content ol {
+        list-style-type: decimal;
+        margin-left: 20px;
+        margin-bottom: 8px;
     }
-
-    #chat-container::-webkit-scrollbar-thumb:hover {
-      background: #718096;
-      /* bg-gray-600 */
+    .markdown-content h2 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        color: #e2e8f0;
+        border-bottom: 1px solid #4a5568;
+        padding-bottom: 2px;
+    }
+    .markdown-content h3 {
+        font-weight: bold;
+        margin-top: 8px;
+        color: #cbd5e0;
+    }
+    .markdown-content strong {
+        color: #63b3ed; /* Light blue for importance */
+        font-weight: 700;
+    }
+    .markdown-content p {
+        margin-bottom: 8px;
     }
   </style>
 </head>
 
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen">
 
-  <!-- Header Section -->
   <header class="bg-gray-800 shadow-md p-4 flex items-center justify-between flex-shrink-0 z-10">
     <div class="flex items-center space-x-3">
       <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
@@ -47,10 +65,8 @@
     </div>
   </header>
 
-  <!-- Main Chat Area -->
   <main id="chat-container" class="flex-1 p-6 overflow-y-auto">
     <div id="message-list" class="space-y-6">
-      <!-- Initial AI Welcome Message -->
       <div class="flex items-start gap-3">
         <div class="bg-gray-700 p-2 rounded-full flex-shrink-0">
           <i class="fas fa-robot text-white"></i>
@@ -59,11 +75,9 @@
           <p class="text-sm">Hello! I'm your PDF AI Agent. How can I help you with your documents today?</p>
         </div>
       </div>
-
     </div>
   </main>
 
-  <!-- Message Input Section -->
   <footer class="bg-gray-800 p-4 flex-shrink-0">
     <form id="chat-form" class="flex items-center space-x-4">
       <label for="file-upload" class="cursor-pointer">
@@ -71,7 +85,7 @@
         <input id="file-upload" type="file" class="hidden">
       </label>
       <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off"
-        class="flex-1 bg-gray-700 border border-gray-600 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        class="flex-1 bg-gray-700 border border-gray-600 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white">
       <button type="submit"
         class="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
         <i class="fas fa-paper-plane"></i>
@@ -80,154 +94,142 @@
   </footer>
 
   <script>
-    // DOM element references
     const chatForm = document.getElementById('chat-form');
     const messageInput = document.getElementById('message-input');
     const messageList = document.getElementById('message-list');
     const chatContainer = document.getElementById('chat-container');
 
-    // --- Event Listener for Form Submission ---
+    // --- Form Submission ---
     chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
       const messageText = messageInput.value.trim();
 
       if (messageText) {
-        // Add the user's message to the chat
         addMessage('user', messageText);
-        // Clear the input field
         messageInput.value = '';
-        // Scroll to the bottom
         scrollToBottom();
 
-        // Simulate AI response after a short delay
-        setTimeout(() => {
-          aiResponse(messageText);
-        }, 1000);
+        // Call AI Response
+        aiResponse(messageText); 
       }
     });
 
     /**
-     * Appends a new message to the chat interface.
-     * @param {string} sender - Who sent the message ('user' or 'ai').
-     * @param {string} text - The content of the message.
+     * Appends a new message.
+     * Uses marked.parse() for AI messages to render Bold/Lists/Headers.
      */
     function addMessage(sender, text) {
       const messageWrapper = document.createElement('div');
-      let messageHtml = '';
+      let innerContent = '';
 
       if (sender === 'user') {
-        // HTML for user messages
+        // User Message (Plain Text)
         messageWrapper.className = 'flex items-start gap-3 justify-end';
-        messageHtml = `
-                    <div class="bg-blue-600 p-4 rounded-lg rounded-br-none max-w-lg shadow-lg">
-                        <p class="text-sm">${text}</p>
-                    </div>
-                    <div class="bg-blue-600 p-2 rounded-full flex-shrink-0">
-                        <i class="fas fa-user text-white"></i>
-                    </div>
-                `;
+        innerContent = `
+          <div class="bg-blue-600 p-4 rounded-lg rounded-br-none max-w-lg shadow-lg text-white">
+            <p class="text-sm">${text}</p>
+          </div>
+          <div class="bg-blue-600 p-2 rounded-full flex-shrink-0">
+            <i class="fas fa-user text-white"></i>
+          </div>
+        `;
       } else {
-        // HTML for AI messages
+        // AI Message (Formatted HTML)
+        // 1. Convert Markdown to HTML using marked.parse()
+        const formattedText = marked.parse(text);
+
         messageWrapper.className = 'flex items-start gap-3';
-        messageHtml = `
-                    <div class="bg-gray-700 p-2 rounded-full flex-shrink-0">
-                        <i class="fas fa-robot text-white"></i>
-                    </div>
-                    <div class="bg-gray-700 p-4 rounded-lg rounded-tl-none max-w-lg shadow-lg">
-                        <p class="text-sm">${text}</p>
-                    </div>
-                `;
+        innerContent = `
+          <div class="bg-gray-700 p-2 rounded-full flex-shrink-0">
+            <i class="fas fa-robot text-white"></i>
+          </div>
+          <div class="bg-gray-700 p-4 rounded-lg rounded-tl-none max-w-lg shadow-lg text-sm markdown-content">
+            ${formattedText}
+          </div>
+        `;
       }
 
-      messageWrapper.innerHTML = messageHtml;
+      messageWrapper.innerHTML = innerContent;
       messageList.appendChild(messageWrapper);
       scrollToBottom();
     }
 
     /**
-     * Simulates a response from the AI.
-     * @param {string} userInput - The user's original message.
+     * Fetches response from Python Backend
      */
     async function aiResponse(userInput) {
-      // 1. Show a "thinking" message to the user
-      addMessage('ai', '<i>Thinking...</i>');
+      // 1. Show temporary thinking message
+      const thinkingWrapper = document.createElement('div');
+      thinkingWrapper.className = 'flex items-start gap-3';
+      thinkingWrapper.innerHTML = `
+         <div class="bg-gray-700 p-2 rounded-full flex-shrink-0"><i class="fas fa-robot text-white"></i></div>
+         <div class="bg-gray-700 p-4 rounded-lg rounded-tl-none max-w-lg shadow-lg"><p class="text-sm italic text-gray-400">Thinking...</p></div>
+      `;
+      messageList.appendChild(thinkingWrapper);
+      scrollToBottom();
 
       try {
-        // 2. Make an API call to your backend
         const response = await fetch("/aiagent", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: userInput,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userInput }),
         });
-        console.log(response)
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+
+        if (!response.ok) throw new Error("Network response was not ok");
 
         const data = await response.json();
-        const aiText = data.output || data.reply; // depends on your Flask return
-        console.log("data", data)
-        console.log("ai data", aiText)
+        const aiText = data.output || data.reply || "No response received.";
 
-        // 3. Remove the "thinking..." placeholder
-        messageList.removeChild(messageList.lastChild);
+        // 2. Remove thinking message
+        messageList.removeChild(thinkingWrapper);
 
-        // 4. Add the actual AI response
+        // 3. Add actual formatted response
         addMessage("ai", aiText);
 
       } catch (error) {
-        console.error("Error fetching AI response:", error);
-
-        // Remove "thinking..." message
-        messageList.removeChild(messageList.lastChild);
-
-        // Show an error to the user
+        console.error("Error:", error);
+        messageList.removeChild(thinkingWrapper);
         addMessage("ai", "Sorry, I seem to be having trouble connecting.");
-      } finally {
-        scrollToBottom();
       }
     }
 
-    /**
-     * Scrolls the chat container to the latest message.
-     */
     function scrollToBottom() {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // --- File Upload Logic ---
+    // --- File Upload ---
     const fileUpload = document.getElementById('file-upload');
     fileUpload.addEventListener('change', async (event) => {
       const file = event.target.files[0];
-      console.log(file)
       if (file) {
-        addMessage('user', `<i>Attached file: ${file.name}</i>`);
-        addMessage('ai', "<i>Uploading...</i>")
-
+        addMessage('user', `Attached file: ${file.name}`);
+        
+        // Show temporary uploading message
+        const uploadMsg = document.createElement('div');
+        uploadMsg.className = 'flex items-start gap-3';
+        uploadMsg.innerHTML = `<div class="bg-gray-700 p-4 rounded-lg"><p class="text-sm italic">Uploading...</p></div>`;
+        messageList.appendChild(uploadMsg);
+        
         const formData = new FormData();
         formData.append("file", file);
 
         try {
           const res = await fetch("/upload", { method: "POST", body: formData });
           const data = await res.json();
+          
+          messageList.removeChild(uploadMsg); // Remove loading msg
 
           if (data.message) {
-            addMessage('ai', `<i> ${data.message}.</i>`);
-            addMessage('ai', ` Now you can ask me questions from ${file.name}.`);
+            addMessage('ai', `**Success!** ${data.message} \n\nYou can now ask questions about *${file.name}*.`);
           } else {
-            addMessage('ai', `Error: ${data.error}`);
+            addMessage('ai', `**Error:** ${data.error}`);
           }
         } catch (err) {
-          addMessage('ai', "Failed to upload file. Please try again.");
+            messageList.removeChild(uploadMsg);
+            addMessage('ai', "Failed to upload file. Please try again.");
         }
       }
     });
-
   </script>
 </body>
-
 </html>
